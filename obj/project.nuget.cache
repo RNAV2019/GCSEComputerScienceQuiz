@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "wJGUV4aAerDbkI+em/fYdJzdrNGD8cJeBN9iZ1uLbqU07rGPJrbmx3N5xWET78jRmmzhuZ0WHPN+GFDhyqMBqg==",
+  "dgSpecHash": "qm5Dj4HkS8ld0HyqSa3hBr5Hcs401XGnV6OKNNR+Cv5b+4L/iyVYlyGqj5gAOXMlJ/27vmTmstj/uHS2J9mJMg==",
   "success": true,
   "projectFilePath": "/home/runner/QuizGame/main.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/home/runner/.nuget/packages/csvhelper/27.2.1/csvhelper.27.2.1.nupkg.sha512"
+  ],
   "logs": []
 }
