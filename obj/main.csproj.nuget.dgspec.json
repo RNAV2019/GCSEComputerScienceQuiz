@@ -1,30 +1,31 @@
 {
   "format": 1,
   "restore": {
-    "/home/runner/QuizGame/main.csproj": {}
+    "/Users/ryannav/Desktop/Programming/C#/GCSEComputerScienceQuiz/main.csproj": {}
   },
   "projects": {
-    "/home/runner/QuizGame/main.csproj": {
+    "/Users/ryannav/Desktop/Programming/C#/GCSEComputerScienceQuiz/main.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/runner/QuizGame/main.csproj",
+        "projectUniqueName": "/Users/ryannav/Desktop/Programming/C#/GCSEComputerScienceQuiz/main.csproj",
         "projectName": "main",
-        "projectPath": "/home/runner/QuizGame/main.csproj",
-        "packagesPath": "/home/runner/.nuget/packages/",
-        "outputPath": "/home/runner/QuizGame/obj/",
+        "projectPath": "/Users/ryannav/Desktop/Programming/C#/GCSEComputerScienceQuiz/main.csproj",
+        "packagesPath": "/Users/ryannav/.nuget/packages/",
+        "outputPath": "/Users/ryannav/Desktop/Programming/C#/GCSEComputerScienceQuiz/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/runner/.nuget/NuGet/NuGet.Config"
+          "/Users/ryannav/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "netcoreapp6.0"
+          "net7.0"
         ],
         "sources": {
+          "/usr/local/share/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net6.0": {
-            "targetAlias": "netcoreapp6.0",
+          "net7.0": {
+            "targetAlias": "net7.0",
             "projectReferences": {}
           }
         },
@@ -35,12 +36,20 @@
         }
       },
       "frameworks": {
-        "net6.0": {
-          "targetAlias": "netcoreapp6.0",
+        "net7.0": {
+          "targetAlias": "net7.0",
           "dependencies": {
             "CsvHelper": {
               "target": "Package",
-              "version": "[27.2.1, )"
+              "version": "[30.0.1, )"
+            },
+            "MySql.Data": {
+              "target": "Package",
+              "version": "[8.0.31, )"
+            },
+            "Spectre.Console": {
+              "target": "Package",
+              "version": "[0.45.0, )"
             }
           },
           "imports": [
@@ -49,7 +58,8 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
@@ -58,7 +68,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/nix/store/jsm5am5i2b2izvwzbw5h6lk3plvpkrlw-dotnet-sdk-6.0.100/sdk/6.0.100/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.100/RuntimeIdentifierGraph.json"
         }
       }
     }

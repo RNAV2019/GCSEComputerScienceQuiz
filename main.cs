@@ -1,11 +1,8 @@
-using System;
-using System.Threading;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
 using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
+using MySql.Data.MySqlClient;
+using Spectre.Console;
 
 public class Program
 {
@@ -45,51 +42,30 @@ public class Program
     }
     public static void Main(string[] args)
     {
+        Console.Clear();
+        string connectionString = @"server=localhost;userid=sqluser;password=RNAV2022";
+        var connection = new MySqlConnection(connectionString);
+        connection.Open();
         // Variables
         bool playAgain = true;
         int pauseDuration = 500;
         // Initialise arrays
-        string[] questions = {
-            "What from the following is an example of a EMBEDDED SYSTEM?\nA: Smartphone\nB: Microwave\nC: Keyboard\nD: Mouse\n",
-            "What are the three types of bus?\nA: Address, Control and Data\nB: Data, Control and Instruction\nC: Instruction, Address and Data\nD: Address, Instruction and Control\n",
-            "What program holds the address of the next instruction waiting to be fetched from memory?\nA: MDR\nB: MAR\nC: Accumulator\nD: Program Counter\n",
-            "What prevention method can stop data interception via a third party hacker?\nA: Encryption\nB: User-Access Levels\nC: Physical Security\nD: Penetration Testing\n",
-            "What is a server?\nA: A computer that controls security\nB: A storage device\nC: A computer that writes files\nD: A computer that manages and stores files\n",
-            "What is the purpose of a domain name server?\nA: To act as a understandable name instead of the IP Address. \nB: To demonstrate the true value of the Domain\nC: To replace the IP address\nD: To remove an IP Address\n",
-            "What program holds the address of the next instruction waiting to be fetched from memory?\nA: MDR\nB: MAR\nC: Accumulator\nD: Program Counter\n",
-            "What program holds the address of the next instruction waiting to be fetched from memory?\nA: MDR\nB: MAR\nC: Accumulator\nD: Program Counter\n",
-            "What program holds the address of the next instruction waiting to be fetched from memory?\nA: MDR\nB: MAR\nC: Accumulator\nD: Program Counter\n",
-            "What program holds the address of the next instruction waiting to be fetched from memory?\nA: MDR\nB: MAR\nC: Accumulator\nD: Program Counter\n"
-            };
+        List<string> questions = new List<string>();
+        List<string> answers = new List<string>();
+        List<List<String>> options = new List<List<string>>();
 
-        string[] answers = {
-            "b",
-            "a",
-            "d",
-            "a",
-            "d",
-            "a",
-            "d",
-            "d",
-            "d",
-            "d"
-        };
-
-        string[] displayAnswers = {
-          "microwave",
-          "address, control and data",
-          "program counter",
-          "encryption",
-          "a computer that manages and stores files",
-          "to act as an understandable name instead of an ip address",
-          "program counter",
-          "program counter",
-          "program counter",
-          "program counter"
-        };
+        using (var cmd = new MySqlCommand("SELECT Question, Answer, OptionA, OptionB, OptionC, OptionD FROM `GCSEComputerScienceQuiz`.`QUIZ`", connection))
+        using (var reader = cmd.ExecuteReader())
+            while (reader.Read())
+            {
+                questions.Add(reader.GetString(0));
+                answers.Add(reader.GetString(1));
+                List<string> data = new List<string> { reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5) };
+                options.Add(data);
+            }
 
         // Check whether a user is a new user or an existing user.
-        int lenOfQuestions = questions.Length;
+        int lenOfQuestions = questions.Count;
         while (playAgain)
         {
             bool isNewUser = false;
@@ -121,19 +97,33 @@ public class Program
             List<string> usernames = new List<string>();
             List<string> passwords = new List<string>();
 
-            using (StreamReader file = new StreamReader("logins.txt"))
-            {
-                string line;
-                while ((line = file.ReadLine()) != null)
+            using (var cmd = new MySqlCommand("SELECT Username, Password FROM `GCSEComputerScienceQuiz`.`USERS`", connection))
+            using (var reader = cmd.ExecuteReader())
+                while (reader.Read())
                 {
-                    string[] columns = line.Split('=');
-                    string username = columns[0].Trim();
-                    string password = columns[1].Trim();
-
-                    usernames.Add(username);
-                    passwords.Add(password);
+                    usernames.Add(reader.GetString(0));
+                    passwords.Add(reader.GetString(1));
                 }
-            }
+
+            // var usernamesAndPasswords = usernames.Zip(passwords, (u, p) => new { Username = u, Password = p });
+            // foreach (var item in usernamesAndPasswords)
+            // {
+            //     Console.WriteLine($"{item.Username} - {item.Password}");
+            // }
+
+            // using (StreamReader file = new StreamReader("logins.txt"))
+            // {
+            //     string line;
+            //     while ((line = file.ReadLine()) != null)
+            //     {
+            //         string[] columns = line.Split('=');
+            //         string username = columns[0].Trim();
+            //         string password = columns[1].Trim();
+
+            //         usernames.Add(username);
+            //         passwords.Add(password);
+            //     }
+            // }
 
             string currUser = "";
             string userPassword = "";
@@ -143,13 +133,14 @@ public class Program
             {
                 bool passedVerification = false;
 
+                Console.Write("Please enter your new username: ");
+                string username = Console.ReadLine();
+                string password = "";
                 while (passedVerification == false)
                 {
-                    Console.Write("Please enter your new username: ");
-                    string username = Console.ReadLine();
 
                     Console.Write("Please enter your new password: ");
-                    string password = Console.ReadLine();
+                    password = Console.ReadLine();
 
                     if (usernames.Contains(username))
                     {
@@ -167,13 +158,18 @@ public class Program
                         Console.WriteLine($"Registration success. You are now logged in as {username} \n");
                         currUser = username;
                         userPassword = password;
-                    }
-                    // Append the login details to a text file.
-                    using (StreamWriter sw = File.AppendText("logins.txt"))
-                    {
-                        sw.WriteLine($"{currUser}={userPassword}");
+                        AnsiConsole.Write(new Markup("Press [cyan]ENTER[/] to continue\n"));
+                        Console.ReadLine();
+                        Console.Clear();
                     }
                 }
+                // Append the login details to a text file.
+                string sqlCommandInsertInto = "INSERT INTO `GCSEComputerScienceQuiz`.`USERS` (Username, Password) VALUES (@username, @password)";
+                var cmd = new MySqlCommand(sqlCommandInsertInto, connection);
+                cmd.Parameters.AddWithValue("@username", username);
+                cmd.Parameters.AddWithValue("@password", password);
+                cmd.Prepare();
+                cmd.ExecuteNonQuery();
             }
             else
             {
@@ -199,68 +195,106 @@ public class Program
                     }
                     if (loginSuccess)
                     {
-                        Console.WriteLine($"Login Success. You are now logged in as {username} \n");
+                        AnsiConsole.Write(new Markup($"Login [green underline]Success[/]. You are now logged in as {username}\n"));
+                        AnsiConsole.Write(new Markup("Press [cyan]ENTER[/] to continue\n"));
+                        Console.ReadLine();
+                        Console.Clear();
                     }
                     else
                     {
-                        Console.WriteLine($"Login failed. Please check your login details and try again.");
+                        AnsiConsole.Write(new Markup($"Login [red underline]Failed[/]. Please check your login details and try again.\n"));
                     }
                 }
             }
 
             // Start of quiz
-            Console.WriteLine($"Welcome {currUser} to the GCSE Computer Science OCR quiz.");
-            Console.WriteLine("You will be tested on 10 questions from the OCR GCSE Computer Science course.\n");
+            string greeting = $"Welcome {currUser} to the GCSE Computer Science OCR quiz. \nYou will be tested on 10 questions from the OCR GCSE Computer Science course.";
+            Console.WriteLine(greeting);
             Thread.Sleep(pauseDuration);
 
             // Players score
             int score = 0;
+            string index = "ABCD";
 
             // Loop through questions
             for (int i = 1; i < lenOfQuestions + 1; i++)
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"QUESTION {i}:\n");
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine(questions[i - 1]);
-                Console.Write("A, B, C or D?: ");
-                Console.ResetColor();
-                string ans = Console.ReadLine().ToLower().Trim();
+                int j;
+                switch (answers[i - 1])
+                {
+                    case "A":
+                        j = 0;
+                        break;
+
+                    case "B":
+                        j = 1;
+                        break;
+
+                    case "C":
+                        j = 2;
+                        break;
+
+                    case "D":
+                        j = 3;
+                        break;
+
+                    default:
+                        j = 0;
+                        break;
+                }
+
+
+                string ans = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title($"Question {i}: {questions[i - 1]}")
+                        .PageSize(10)
+                        .HighlightStyle(new Style(foreground: Color.CornflowerBlue))
+                        .MoreChoicesText("[blue](Move up and down to reveal more options)[/]")
+                        .UseConverter(value => $"{value.ToUpper()} : {options[i - 1][index.IndexOf(value)]}")
+                        .AddChoices(new[] {
+                            "A", "B", "C", "D"
+                        }));
+
                 if (ans == answers[i - 1])
                 {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("\nCORRECT!!!\n");
-                    Console.ResetColor();
+                    // Console.ForegroundColor = ConsoleColor.Green;
+                    // Console.WriteLine("\nCORRECT!!!\n");
+                    // Console.ResetColor();
+                    AnsiConsole.Write(new Markup("[green bold]CORRECT[/]\n"));
                     score++;
+                    AnsiConsole.Write(new Markup("Press [cyan]ENTER[/] to continue\n"));
+                    Console.ReadLine();
+                    Console.Clear();
+                    Console.WriteLine(greeting);
+                    AnsiConsole.Write(new Markup($"[green italic dim]Score : {score} / {lenOfQuestions}[/]\n"));
                 }
                 else
                 {
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.WriteLine("\nWRONG!!!\n");
-                    Console.ResetColor();
-                    Console.WriteLine($"The correct answer is {answers[i - 1].ToUpper()}: {displayAnswers[i - 1]}\n");
+                    AnsiConsole.Write(new Markup("[red bold]Wrong[/]\n"));
+                    AnsiConsole.Write(new Markup($"The correct answer is [yellow bold underline]{answers[i - 1].ToUpper()}: {options[i - 1][j]}[/]\n"));
+                    AnsiConsole.Write(new Markup("Press [cyan]ENTER[/] to continue"));
+                    Console.ReadLine();
+                    Console.Clear();
+                    Console.WriteLine(greeting);
+                    AnsiConsole.Write(new Markup($"[green italic dim]Score : {score} / {lenOfQuestions}[/]\n"));
                 }
-                Thread.Sleep(pauseDuration);
+                // Thread.Sleep(pauseDuration);
             };
             // Quiz is complete
             Console.WriteLine("The quiz is complete.");
             Console.WriteLine($"Your final score is {score} out of {lenOfQuestions}");
             // Anaylse the users score.
-            if (score < 5)
+            if (score < ((int)(0.5 * lenOfQuestions)))
             {
                 Console.WriteLine("Better luck next time!");
             }
-            else if (score < 8)
+            else if (score < ((int)(0.8 * lenOfQuestions)))
             {
                 Console.WriteLine("Pretty good!");
             }
-            else if (score < 10)
-            {
-                Console.WriteLine("Excellent score, well done!");
-            }
             else
             {
-                Console.WriteLine("Full marks!");
+                Console.WriteLine("Excellent score, well done!");
             }
 
             // Appends username and score to csv file.
